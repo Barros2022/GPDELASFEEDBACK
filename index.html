@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+// Monta escalas
+document.querySelectorAll('[data-field]').forEach(div => buildScale(div, div.dataset.field));
+buildNPS();
+
+
+// Contador de caracteres do comentário
+const comentario = document.getElementById('comentario');
+const charCount = document.getElementById('charCount');
+comentario.addEventListener('input', () => {
+charCount.textContent = `${comentario.value.length}/600`;
+});
+
+
+// Submit
+const form = document.getElementById('feedbackForm');
+const statusMsg = document.getElementById('statusMsg');
+const submitBtn = document.getElementById('submitBtn');
+
+
+form.addEventListener('submit', async (e) => {
+e.preventDefault();
+
+
+if (!GAS_URL || GAS_URL.startsWith('PASTE_AQUI')) {
+statusMsg.textContent = '⚠️ Configure a GAS_URL antes de enviar.';
+statusMsg.className = 'text-sm text-red-600';
+return;
+}
+
+
+submitBtn.disabled = true;
+statusMsg.textContent = 'Enviando...';
+statusMsg.className = 'text-sm text-gray-600';
+
+
+const data = Object.fromEntries(new FormData(form).entries());
+
+
+try {
+const res = await fetch(GAS_URL, {
+method: 'POST',
+headers: { 'Content-Type': 'application/json' },
+body: JSON.stringify({
+timestamp: new Date().toISOString(),
+turma: data.turma,
+geral: Number(data.geral),
+didatica: Number(data.didatica),
+conteudo: Number(data.conteudo),
+pratica: Number(data.pratica),
+estrutura: Number(data.estrutura),
+organizacao: Number(data.organizacao),
+nps: Number(data.nps),
+comentario: (data.comentario || '').trim()
+})
+});
+
+
+const json = await res.json();
+if (json && json.ok) {
+statusMsg.textContent = '✅ Obrigada! Seu feedback anônimo foi registrado.';
+statusMsg.className = 'text-sm text-green-700';
+form.reset();
+charCount.textContent = '0/600';
+submitBtn.disabled = false;
+} else {
+throw new Error('Resposta inesperada do servidor.');
+}
+} catch (err) {
+console.error(err);
+statusMsg.textContent = '❌ Não foi possível enviar. Tente novamente em instantes.';
+statusMsg.className = 'text-sm text-red-600';
+submitBtn.disabled = false;
+}
+});
+</script>
+</body>
+</html>
