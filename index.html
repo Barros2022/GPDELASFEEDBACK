@@ -1,78 +1,54 @@
 <!DOCTYPE html>
-// Monta escalas
-document.querySelectorAll('[data-field]').forEach(div => buildScale(div, div.dataset.field));
-buildNPS();
-
-
-// Contador de caracteres do comentário
-const comentario = document.getElementById('comentario');
-const charCount = document.getElementById('charCount');
-comentario.addEventListener('input', () => {
-charCount.textContent = `${comentario.value.length}/600`;
-});
-
-
-// Submit
-const form = document.getElementById('feedbackForm');
-const statusMsg = document.getElementById('statusMsg');
-const submitBtn = document.getElementById('submitBtn');
-
-
-form.addEventListener('submit', async (e) => {
-e.preventDefault();
-
-
-if (!GAS_URL || GAS_URL.startsWith('PASTE_AQUI')) {
-statusMsg.textContent = '⚠️ Configure a GAS_URL antes de enviar.';
-statusMsg.className = 'text-sm text-red-600';
-return;
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Feedback — GPDELAS (Anônimo)</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<meta name="color-scheme" content="light only">
+<style>
+.sr-only:not(:focus):not(:active) {
+clip: rect(0 0 0 0);
+clip-path: inset(50%);
+height: 1px; width: 1px; overflow: hidden; position: absolute; white-space: nowrap;
 }
+</style>
+</head>
+<body class="min-h-screen bg-pink-50">
+<main class="max-w-3xl mx-auto p-6">
+<header class="mb-6 flex items-center gap-4">
+<img src="logo.png" alt="Logo GPDELAS" class="w-20 h-20 rounded-2xl shadow object-cover" />
+<div>
+<h1 class="text-2xl font-bold text-pink-800">GPDELAS — Plantabilidade & Mecanização</h1>
+<p class="text-pink-900/70">Formulário <strong>100% anônimo</strong> para alunas do agro 💪🌱</p>
+</div>
+</header>
 
 
-submitBtn.disabled = true;
-statusMsg.textContent = 'Enviando...';
-statusMsg.className = 'text-sm text-gray-600';
+<form id="feedbackForm" class="bg-white rounded-2xl shadow p-6 grid gap-6">
+<label class="grid gap-1">
+<span class="text-sm font-medium text-pink-900">Turma/Local*</span>
+<input name="turma" type="text" required class="border rounded-xl px-3 py-2 focus:outline-none focus:ring-2 focus:ring-pink-300" placeholder="Ex.: Botucatu/SP — Nov/2025" />
+</label>
 
 
-const data = Object.fromEntries(new FormData(form).entries());
-
-
-try {
-const res = await fetch(GAS_URL, {
-method: 'POST',
-headers: { 'Content-Type': 'application/json' },
-body: JSON.stringify({
-timestamp: new Date().toISOString(),
-turma: data.turma,
-geral: Number(data.geral),
-didatica: Number(data.didatica),
-conteudo: Number(data.conteudo),
-pratica: Number(data.pratica),
-estrutura: Number(data.estrutura),
-organizacao: Number(data.organizacao),
-nps: Number(data.nps),
-comentario: (data.comentario || '').trim()
-})
-});
-
-
-const json = await res.json();
-if (json && json.ok) {
-statusMsg.textContent = '✅ Obrigada! Seu feedback anônimo foi registrado.';
-statusMsg.className = 'text-sm text-green-700';
-form.reset();
-charCount.textContent = '0/600';
-submitBtn.disabled = false;
-} else {
-throw new Error('Resposta inesperada do servidor.');
-}
-} catch (err) {
-console.error(err);
-statusMsg.textContent = '❌ Não foi possível enviar. Tente novamente em instantes.';
-statusMsg.className = 'text-sm text-red-600';
-submitBtn.disabled = false;
-}
-});
-</script>
-</body>
+<!-- Bloco de avaliações 1–5 -->
+<section class="grid gap-4">
+<h2 class="font-semibold text-pink-900">Avalie de 1 a 5</h2>
+<div class="grid md:grid-cols-2 gap-4">
+<div class="grid gap-2">
+<label class="text-sm font-medium text-pink-900">Avaliação geral*</label>
+<div class="flex gap-2" data-field="geral"></div>
+</div>
+<div class="grid gap-2">
+<label class="text-sm font-medium text-pink-900">Didática*</label>
+<div class="flex gap-2" data-field="didatica"></div>
+</div>
+<div class="grid gap-2">
+<label class="text-sm font-medium text-pink-900">Conteúdo*</label>
+<div class="flex gap-2" data-field="conteudo"></div>
+</div>
+<div class="grid gap-2">
+<label class="text-sm font-medium text-pink-900">Prática de plantabilidade*</label>
+<div class="flex gap-2" data-field="pratica"></div>
 </html>
